@@ -33,26 +33,35 @@ public class AtomBuilder : MonoBehaviour
 
     void BuildElectronShell()
     {
-        float radius = 1.2f;
+        float orbitRadius = 1.2f;
 
         for (int i = 0; i < electronCount; i++)
         {
-            float angle = i * Mathf.PI * 2f / electronCount;
-            Vector3 pos = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * radius;
+            // Generate a random plane to orbit on
+            Vector3 axis = Random.onUnitSphere.normalized;
+            Vector3 orbitStartPos = Vector3.forward * orbitRadius;
 
-            GameObject orbitCenter = new GameObject("ElectronOrbit" + i);
-            orbitCenter.transform.parent = transform;
-            orbitCenter.transform.localPosition = Vector3.zero;
+            // Create orbit parent with random rotation
+            GameObject orbitParent = new GameObject("ElectronOrbit_" + i);
+            orbitParent.transform.parent = transform;
+            orbitParent.transform.localPosition = Vector3.zero;
+            orbitParent.transform.rotation = Quaternion.LookRotation(axis);
 
-            GameObject electron = Instantiate(electronPrefab, transform.position + pos, Quaternion.identity);
-            electron.transform.parent = orbitCenter.transform;
+            // Create electron at orbit start position
+            GameObject electron = Instantiate(electronPrefab, orbitParent.transform.position + orbitParent.transform.rotation * orbitStartPos, Quaternion.identity);
+            electron.transform.parent = orbitParent.transform;
 
-            orbitCenter.AddComponent<ElectronOrbit>().speed = 50f + i * 10f;
+            // Animate orbit
+            ElectronOrbit orbitScript = orbitParent.AddComponent<ElectronOrbit>();
+            orbitScript.speed = 50f + i * 5f;
 
+            // Track for cleanup
+            spawned.Add(orbitParent);
             spawned.Add(electron);
-            spawned.Add(orbitCenter);
         }
     }
+
+
 
     void SpawnInSphere(GameObject prefab, float range)
     {
@@ -63,14 +72,23 @@ public class AtomBuilder : MonoBehaviour
 
     void ClearAtom()
     {
-        foreach (var obj in spawned)
+        // Destroy all previously spawned objects
+        for (int i = 0; i < spawned.Count; i++)
         {
+            if (spawned[i] != null)
+            {
 #if UNITY_EDITOR
-            DestroyImmediate(obj);
+                if (!Application.isPlaying)
+                    DestroyImmediate(spawned[i]);
+                else
+                    Destroy(spawned[i]);
 #else
-            Destroy(obj);
+            Destroy(spawned[i]);
 #endif
+            }
         }
+
         spawned.Clear();
     }
+
 }
