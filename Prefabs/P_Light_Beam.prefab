@@ -343,10 +343,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 0
-  correctEffectPrefab: {fileID: 0}
-  incorrectEffectPrefab: {fileID: 0}
-  correctSound: {fileID: 0}
-  incorrectSound: {fileID: 0}
+  correctEffectPrefab: {fileID: 6014110867774297122, guid: 890cade96f44393429428f50ab0e3168, type: 3}
+  incorrectEffectPrefab: {fileID: 6014110867774297122, guid: 2dcea64773ae2fd41b783baa11875a8b, type: 3}
+  correctSound: {fileID: 8300000, guid: 930be37e2e4fbcf4d9c0568a324a809b, type: 3}
+  incorrectSound: {fileID: 8300000, guid: 4e6070e184101af4faacd39945b676a9, type: 3}
 --- !u!82 &9028633633985048803
 AudioSource:
   m_ObjectHideFlags: 0
