@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-public enum MatterType
+public enum MatterTypeEnum
 {
     None,
     Matter,
@@ -14,5 +14,5 @@ public enum MatterType
 
 public class MatterObject : MonoBehaviour
 {
-    public MatterType type;
+    public MatterTypeEnum type;
 }
