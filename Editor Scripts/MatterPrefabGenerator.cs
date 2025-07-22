@@ -4,45 +4,76 @@ using UnityEngine.XR.Interaction.Toolkit;
 using System.IO;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
-public class MatterPrefabGenerator : MonoBehaviour
+public class MatterPrefabGenerator : EditorWindow
 {
-    [MenuItem("Tools/Generate Matter Prefabs")]
-    static void WrapSelectedAsMatterPrefabs()
+    private bool useMeshCollider = true;
+    private MatterType matterType = MatterType.Matter;
+
+    [MenuItem("Tools/Matter Prefab Generator")]
+    public static void ShowWindow()
     {
-        foreach (GameObject selected in Selection.gameObjects)
+        GetWindow<MatterPrefabGenerator>("Matter Prefab Generator");
+    }
+
+    private void OnGUI()
+    {
+        GUILayout.Label("Matter Prefab Settings", EditorStyles.boldLabel);
+        useMeshCollider = EditorGUILayout.Toggle("Use Mesh Collider", useMeshCollider);
+        matterType = (MatterType)EditorGUILayout.EnumPopup("Matter Type", matterType);
+
+        if (GUILayout.Button("Generate Prefabs from Selection"))
         {
-            if (selected == null) continue;
+            GeneratePrefabs();
+        }
+    }
 
-            // Create root prefab object
-            GameObject root = new GameObject(selected.name + "_MatterObject");
-            root.transform.position = selected.transform.position;
+    private void GeneratePrefabs()
+    {
+        GameObject[] selected = Selection.gameObjects;
 
-            // Create Visual child
-            GameObject visual = Instantiate(selected, root.transform);
+        if (selected.Length == 0)
+        {
+            Debug.LogWarning("No objects selected.");
+            return;
+        }
+
+        string savePath = "Assets/Prefabs/";
+        Directory.CreateDirectory(savePath);
+
+        foreach (GameObject model in selected)
+        {
+            GameObject root = new GameObject(model.name + "_MatterObject");
+            root.transform.position = model.transform.position;
+
+            // Visual child
+            GameObject visual = Instantiate(model, root.transform);
             visual.name = "Visual";
 
-            // Add required components
+            // Rigidbody
             Rigidbody rb = root.AddComponent<Rigidbody>();
             rb.useGravity = true;
 
-            Collider col = root.AddComponent<BoxCollider>(); // You can switch to MeshCollider if needed
+            // Collider
+            Collider col = useMeshCollider
+                ? root.AddComponent<MeshCollider>()
+                : root.AddComponent<BoxCollider>();
 
-            XRGrabInteractable grab = root.AddComponent<XRGrabInteractable>();
+            if (col is MeshCollider mc) mc.convex = true;
+
+            // XR + audio + script
+            root.AddComponent<XRGrabInteractable>();
             root.AddComponent<AudioSource>();
 
             MatterChecker checker = root.AddComponent<MatterChecker>();
-            checker.type = MatterType.Matter; // Default; change per prefab
+            checker.type = matterType;
 
-            // Save as prefab
-            string prefabPath = "Assets/Prefabs/" + root.name + ".prefab";
-            Directory.CreateDirectory("Assets/Prefabs");
-
+            // Save
+            string prefabPath = savePath + root.name + ".prefab";
             PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
 
-            // Clean up the temporary root from scene
             DestroyImmediate(root);
         }
 
-        Debug.Log("Finished generating MatterObject prefabs.");
+        Debug.Log("MatterObject prefabs created and saved to Assets/Prefabs.");
     }
 }
