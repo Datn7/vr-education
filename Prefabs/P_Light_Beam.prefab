@@ -342,7 +342,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb62e79f12ef75c4ab6254cd67013acf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 0
+  type: 1
   correctEffectPrefab: {fileID: 6014110867774297122, guid: 890cade96f44393429428f50ab0e3168, type: 3}
   incorrectEffectPrefab: {fileID: 6014110867774297122, guid: 2dcea64773ae2fd41b783baa11875a8b, type: 3}
   correctSound: {fileID: 8300000, guid: 930be37e2e4fbcf4d9c0568a324a809b, type: 3}
